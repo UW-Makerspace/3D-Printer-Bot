@@ -1,0 +1,30 @@
+{
+  "name": "3d-printer-bot",
+  "version": "1.0.0",
+  "description": "Raspberry Pi bot for 3D Printers",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UW-Makerspace/3D-Printer-Bot.git"
+  },
+  "keywords": [
+    "Awesome"
+  ],
+  "author": "Spencer Fricke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UW-Makerspace/3D-Printer-Bot/issues"
+  },
+  "homepage": "https://github.com/UW-Makerspace/3D-Printer-Bot#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "request": "^2.86.0"
+  }
+}
