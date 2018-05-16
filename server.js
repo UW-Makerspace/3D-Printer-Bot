@@ -19,8 +19,23 @@ app.use(cookieParser());
 //---------------Grabs index.html-------------------//
 app.use(express.static(path.join(__dirname, 'front')));
 
-app.get('/test', function(req, res, next) {
-  console.log("TEST");
+app.get('/rainbow', function(req, res, next) {
+  console.log("rainbow");
+  res.send("Good");
+})
+
+app.get('/white', function(req, res, next) {
+  console.log("white");
+  res.send("Good");
+});
+
+app.get('/bucky', function(req, res, next) {
+  console.log("bucky");
+  res.send("Good");
+});
+
+app.get('/active', function(req, res, next) {
+  console.log("active");
   res.send("Good");
 });
 
