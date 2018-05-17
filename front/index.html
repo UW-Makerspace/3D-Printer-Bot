@@ -3,61 +3,30 @@
 <head>
 	<title>3D Printer Bot</title>
 
-	<style type="text/css">
-		.makerButton{
-			width: 48vw;
-			height: 48vh;
-			background: white;
-			color: red;
-			font-size: 200%;
-			position: absolute;
-		}
-	</style>
+	<link rel="stylesheet" href="style.css">
 
 	<script type="text/javascript" src="jquery-3.3.1.min.js"></script>
-	<script type="text/javascript">
-		function setColor(type) {
-			switch(type) {
-				case 0:
-					$.get( "/rainbow", function( data ) {
-						setActive(0);
-					});
-					break;
-				case 1:
-					$.get( "/white", function( data ) {
-						setActive(1);
-					});
-					break;
-				case 2:
-					$.get( "/bucky", function( data ) {
-						setActive(2);
-					});
-					break;
-				case 3:
-					$.get( "/active", function( data ) {
-						setActive(3);
-					});
-					break;
-			}
-		}
-
-		var defaultColor = "white";
-		var activeColor = "grey";
-		function setActive(id) {
-			// set all off
-			document.getElementById("button0").style.background = defaultColor;
-			document.getElementById("button1").style.background = defaultColor;
-			document.getElementById("button2").style.background = defaultColor;
-			document.getElementById("button3").style.background = defaultColor;
-			
-			document.getElementById("button" + id).style.background = activeColor;
-		}
-	</script>
+	<script type="text/javascript" src="main.js"></script>
 </head>
 <body>
-<button class="makerButton" style="left:1%;top:1%;" id="button0" onclick="setColor(0)">RAINBOW</button>
-<button class="makerButton" style="left:51%;top:1%;" id="button1" onclick="setColor(1)">WHITE</button>
-<button class="makerButton" style="left:1%;top:50%;" id="button2" onclick="setColor(2)">BUCKY</button>
-<button class="makerButton" style="left:51%;top:50%;" id="button3" onclick="setColor(3)">ACTIVE</button>
+
+<div class="alertBox" id="alertBox">TEST</div>
+
+<div id="mainScreen">
+	<button class="lightButton" style="left:1%; top:1%;"  id="button0" onclick="setColor(0)">RAINBOW</button>
+	<button class="lightButton" style="left:51%;top:1%;"  id="button1" onclick="setColor(1)">WHITE</button>
+	<button class="lightButton" style="left:1%; top:38%;" id="button2" onclick="setColor(2)">BUCKY</button>
+	<button class="lightButton" style="left:51%;top:38%;" id="button3" onclick="setColor(3)">ACTIVE</button>
+	<button style="left:1%;top:75%;" id="updatePrinters" onclick="updatePrinters()">UPDATE PRINTERS</button>
+</div>
+
+<div id="printerSelect">
+	<div id="printerSelectBack" onclick="changeMenu(0)">Back</div>
+	<div id="printerList"></div>
+</div>
+
+<div id="printerOptions">
+</div>
+
 </body>
 </html>

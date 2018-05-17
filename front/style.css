@@ -1,0 +1,85 @@
+.lightButton {
+	width: 48vw;
+	height: 36vh;
+	background: white;
+	color: red;
+	font-size: 200%;
+	position: absolute;
+}
+
+#updatePrinters {
+	width: 98vw;
+	height: 24vh;
+	background: white;
+	color: red;
+	font-size: 200%;
+	position: absolute;
+}
+
+.alertBox {
+	width: 40vw;
+	height: 8vh;
+	background-color: lightcoral;
+	border: 4px red solid;
+	color: white;
+	z-index: 999;
+	text-align: center;
+	font-size: 5vh;
+	margin-left: 27.5vw;
+	visibility: hidden;
+	margin-top: 9vh;
+	position: fixed;
+	top: 0;
+}
+
+.printerItem {
+	width: 46vw;	
+    float: left;
+	margin-left: 1vw;
+	margin-bottom: 1vw;
+	height: 11vh;
+	background: white;
+	color: red;
+	font-size: 4vh;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 11vh;
+    border: 1px black solid;
+}
+
+#mainScreen {
+	visibility: visible;
+}
+
+#printerSelect {
+	visibility: hidden;	
+    overflow-x: hidden;
+}
+
+#printerSelectBack {
+	width: 93vw;	
+	margin-left: 1vw;
+	margin-bottom: 1vw;
+	height: 11vh;
+	background: red;
+	color: white;
+	font-size: 4vh;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 11vh;
+    border: 1px black solid;
+}
+
+#printerList: {	
+    overflow-x: hidden;    
+}
+
+#printerList:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#PrinterOptions {
+	visibility: hidden;
+}
