@@ -1,4 +1,4 @@
-  //------------------- Node Js Libraries imports -------------------//
+//------------------- Node Js Libraries imports -------------------//
 
   //modules "require()" (same idea of #includes or Imports)
   const express = require('express'); //used as routing framework
@@ -147,7 +147,7 @@
   });
   //-------------- Ultimaker 3 API Functions ----------------------//
 
-  var TIMEOUT_MAX = 1500; // ms
+  var TIMEOUT_MAX = 3500; // ms
   var activeMode = false;
   var inactiveList = [];
 
@@ -158,9 +158,21 @@
       printerRequest(printer, "system/name", function(err, body) {
         if (!err) { printer.name = body; } else {return;}
         printerRequest(printer, "print_job/time_elapsed", function(err, body) {
-          if (!err) { printer.timeElapsed = body; } else {return;}
+            if (!err) {
+		if (isNaN(body)) {  
+		    printer.timeElapsed = 0;
+		} else {
+		    printer.timeElapsed = parseInt(body);
+		}
+	    } else {return;}
           printerRequest(printer, "print_job/time_total", function(err, body) {
-            if (!err) { printer.timeTotal = body; } else {return;}
+              if (!err) {
+		  if (isNaN(body)) {  
+		      printer.timeTotal = 0;
+		  } else {
+		      printer.timeTotal = parseInt(body);
+		}
+	      } else {return;}
             printerRequest(printer, "printer/status", function(err, body) {
               if (!err) { printer.autoStatus = body; } else {return;}
               printerRequest(printer, "camera/0/snapshot", function(err, body) {
@@ -177,7 +189,7 @@
   function updateSnapshot(printer) {
     request.get("http://" + printer.ip + ":8080/?action=snapshot")
     .on('error', function(err) {
-      console.log(err);
+	console.log("CANT TAKE PHOTO:" + err);
     })
     .pipe(fs.createWriteStream(IMAGE_FOLDER + "/" + printer.imageName))
   }
@@ -205,6 +217,17 @@
 
   // an initial sweep of printer check before updateLoop first interval goes off
   printerCheck();
+
+// ------------ Debugging functions ---------- //
+
+// Prints all serial from printers
+function getSerial() {
+    _printers.keys.forEach(function(printer, index) {
+	printerRequest(printer, "system/guid", function(err, body) {
+            if (!err) { console.log(printer.name + " " + body); } else {return;}
+	});
+    });
+}
 
   // ------------ Server Setup --------------//
 

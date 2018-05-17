@@ -70,8 +70,7 @@ function printerSettings(nameIndex) {
 	});	
 }
 
-function setWorkingStatus(working) {
-	var status = working ? "working" : "not working";
+function setWorkingStatus(status) {
 	$.post("/setStatus", {"name" : currentName, "status" : status}, function( data ) {
 		changeMenu(1);
 		alertBox(status + " status Set");
