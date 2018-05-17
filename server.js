@@ -31,8 +31,8 @@ var sqlConnect = mysql.createConnection({
 });
 
 sqlConnect.connect(function(err) {
-   if (err) throw err;
-   console.log("Connected to SQL Server!");
+    if (err) throw err;
+    console.log("Connected to SQL Server!");
 });
 
 //------------------- Express JS settings -------------------//
@@ -144,7 +144,7 @@ app.post('/setStatus', function(req, res) {
     var index = _printers.getIndexBySerial(req.body.serial);
     _printers.keys[index].manualStatus = req.body.status;
     if (activeMode) {
-      setColorStatus(_printers.keys[index]);
+	setColorStatus(_printers.keys[index]);
     }
     res.send("Good");
 });
@@ -220,24 +220,24 @@ function printerRequest(printer, api, callback) {
 
 function updateSCP() {
     scpClient.scp(IMAGE_FOLDER + "/", _scp.username + ":" + _scp.password + "@" + _scp.host, function(err) {
-      if (err) { console.error(err); }
+	if (err) { console.error(err); }
     });
 }
 
 function updateSQL(printer) {
-  if(sqlConnect.state === 'disconnected'){
-    sqlConnect.connect(function(err) {
-      if (err) { console.error(err) };
-      console.log("Connected to SQL Server... again!");
-    });
+    if(sqlConnect.state === 'disconnected'){
+	sqlConnect.connect(function(err) {
+	    if (err) { console.error(err) };
+	    console.log("Connected to SQL Server... again!");
+	});
 
-  } else {
-    sqlConnect.query(
-      "UPDATE ? SET timetotal = ?, manualStatus = ?, autoStatus = ?, name = ?, timeelapsed = ? WHERE serial = ?",
-      [_sql.database, printer.timeTotal, printer.manualStatus, printer.autoStatus, printer.name, printer.timeElapsed, printer.serial], function(err, result) {
-        if (err) { console.error(err); }
-    });
-  }
+    } else {
+	sqlConnect.query(
+	    "UPDATE ? SET timetotal = ?, manualStatus = ?, autoStatus = ?, name = ?, timeelapsed = ? WHERE serial = ?",
+	    [_sql.database, printer.timeTotal, printer.manualStatus, printer.autoStatus, printer.name, printer.timeElapsed, printer.serial], function(err, result) {
+		if (err) { console.error(err); }
+	    });
+    }
 }
 
 // ------------ ON BOOT task --------------//
