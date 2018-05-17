@@ -67,6 +67,7 @@ function printerSettings(serial) {
 	});	
 }
 
+
 function setWorkingStatus(status) {
 	$.post("/setStatus", {"serial" : currentPrinter, "status" : status}, function( data ) {
 		changeMenu(1);
