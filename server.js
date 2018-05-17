@@ -76,6 +76,7 @@ function setColorStatus(printer) {
     else if (printer.autoStatus == "maintenance") { color == _colors.blue; }
     else if (printer.autoStatus == "error") { color == _colors.red; }
     else { color == _colors.white; } // active
+
     setColor(printer, color);
 }
 
@@ -100,7 +101,7 @@ app.get('/white', function(req, res) {
 app.get('/bucky', function(req, res) {
     activeMode = false;
     _printers.keys.forEach(function(printer, index) {
-	var color = (Math.floor(Math.random()) % 2 == 0) ? _colors.white : _colors.red;
+	var color = (Math.floor(Math.random() * 100) % 2 == 0) ? _colors.white : _colors.red;
 	setColor(printer, color);
     });
     res.send("Good");
@@ -170,7 +171,7 @@ function printerCheck() {
 		    } else {return;}
 		    printerRequest(printer, "printer/status", function(err, body) {
 			if (!err) { 
-			    printer.autoStatus = body;
+			    printer.autoStatus = body.replace(/"/g,"");
 			    if (activeMode) {
 				setColorStatus(printer);
 			    }
