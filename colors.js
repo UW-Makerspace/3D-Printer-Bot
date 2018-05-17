@@ -57,7 +57,7 @@ module.exports = {
 		"hue" : 25,
 		"saturation" : 100,
 		"value" : 100
-    }
+	},
 	"cyan" : {
 		"hue" : 180,
 		"saturation" : 100,
