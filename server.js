@@ -13,13 +13,15 @@ const request = require('request'); // Make HTTP request inside Node.js
 const fs = require('fs'); // file system
 const ip = require('ip'); // to get IP info on Pi
 const mysql = require('mysql');  // for database
+const scpClient = require('scp2'); // to transfer images over
 
 //------------------- side files with info -------------------//
 
 // underscore represents loaded from other files
-const _printers = require('./keys.js'); // needs to be added manually from drive
 const _colors = require('./colors.js');
-const _sql = require('./sql.js');
+const _printers = require('./keys.js'); // needs to be added manually from drive
+const _sql = require('./sql.js'); // needs to be added manually from drive
+const _scp = require('./scp.js'); // needs to be added manually from drive
 
 //------------------- Set up mySQL connection -------------------//
 var sqlConnect = mysql.createConnection({
@@ -177,7 +179,7 @@ function printerCheck() {
 			printerRequest(printer, "camera/0/snapshot", function(err, body) {
 			    // Do camera last
 			    if (!err) { updateSnapshot(printer); }
-
+			    //updateSCP(printer.imageName);
 			    updateSQL(printer);
 			});
 		    });
@@ -210,6 +212,12 @@ function printerRequest(printer, api, callback) {
     })
 }
 
+function updateSCP() {
+    scpClient.scp(IMAGE_FOLDER + "/", _scp.username + ":" + _scp.password + "@" + _scp.host, function(err) {
+	if (err) { console.error(err); }
+    });
+}
+
 function updateSQL(printer) {
 
 }
@@ -221,8 +229,8 @@ const PRINTER_CHECK_INTERVAL = 60 * 1000; // ms
 setInterval(printerCheck, PRINTER_CHECK_INTERVAL);
 
 // an initial sweep of printer check before updateLoop first interval goes off
-printerCheck();
-
+//printerCheck();
+updateSCP();
 // ------------ Debugging functions ---------- //
 
 // Prints all serial from printers
