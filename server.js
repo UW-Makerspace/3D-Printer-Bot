@@ -205,7 +205,8 @@ function updateSnapshot(printer) {
 
 function printerRequest(printer, api, callback) {
     request.get("http://" + printer.ip + "/api/v1/" + api, {timeout: TIMEOUT_MAX}, function(err, response, body) {        
-	if (err && err.code === 'ETIMEDOUT') {
+	//if (err && err.code === 'ETIMEDOUT') {
+	if (err) {
             console.log(printer.name + " has timeout");
             if (inactiveList.indexOf(printer.serial) == -1) {
 		inactiveList.push(printer.serial);
