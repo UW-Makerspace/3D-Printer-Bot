@@ -10,19 +10,16 @@ module.exports = {
 	"saturation" : 0,
 	"value" : 0
     },
-
     "white" : {
 	"hue" : 0,
 	"saturation" : 0,
 	"value" : 100
     },
-
     "red" : {
 	"hue" : 0,
 	"saturation" : 100,
 	"value" : 100
     },
-
     "green" : {
 	"hue" : 127,
 	"saturation" : 100,

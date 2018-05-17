@@ -71,13 +71,11 @@ function setColor(printer, color) {
 }
 
 function setColorStatus(printer) {
-    var color;
-    if (printer.autoStatus == "idle") { color == _colors.green; }
-    else if (printer.autoStatus == "maintenance") { color == _colors.blue; }
-    else if (printer.autoStatus == "error") { color == _colors.red; }
-    else { color == _colors.white; } // active
-
-    setColor(printer, color);
+    if (printer.autoStatus == "idle") { setColor(printer,_colors.green); }
+    else if (printer.autoStatus == "maintenance") { setColor(printer, _colors.blue); }
+    else if (printer.autoStatus == "error") { setColor(printer,_colors.red); }
+    else if (printer.autoStatus == "printing") { setColor(printer,_colors.white); }
+    else { return; }
 }
 
 app.get('/rainbow', function(req, res, next) {
