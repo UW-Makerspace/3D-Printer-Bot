@@ -125,7 +125,9 @@
   });
 
   app.post('/printerInfo', function(req, res) {
-    if (inactiveList.indexOf(req.body.name) >= 0) {
+    // Assuming req.body.name is always valid
+    var serial = _printers.getByName(req.body.name).serial;
+    if (inactiveList.indexOf(serial) >= 0) {
       // is inactive
       return res.json({
         "active" : false
@@ -145,35 +147,64 @@
   });
   //-------------- Ultimaker 3 API Functions ----------------------//
 
-  const LOOP_INTERVAL = 5000; // ms
+  var TIMEOUT_MAX = 1500; // ms
   var activeMode = false;
-  var inactiveList = ["Yellow Belly Sap Sucker"];
+  var inactiveList = [];
 
-  // Main loop that checks printers every set interval
-  function updateLoop() {
-  }
-
-  function updateSnapshot(printer, callback) {
-    var url = "http://" + printer.ip + "/api/v1/camera/0/snapshot";
-
-    request.get(url, function(error, response, body) {
-        if (error) { console.log(error); }
-
-        var urlSnapshot = "http://" + printer.ip + ":8080/?action=snapshot";
-        request.get(urlSnapshot)
-        .on('error', function(err) {
-          console.log(err);
-        })
-        .pipe(fs.createWriteStream(IMAGE_FOLDER + "/" + printer.imageName))
-      
-        callback();  
+  // gather all details from printers
+  // callback hell is real, not time to do it propery with ES6 aync awaits
+  function printerCheck() {
+    _printers.keys.forEach(function(printer, index) {
+      printerRequest(printer, "system/name", function(err, body) {
+        if (!err) { printer.name = body; } else {return;}
+        printerRequest(printer, "print_job/time_elapsed", function(err, body) {
+          if (!err) { printer.timeElapsed = body; } else {return;}
+          printerRequest(printer, "print_job/time_total", function(err, body) {
+            if (!err) { printer.timeTotal = body; } else {return;}
+            printerRequest(printer, "printer/status", function(err, body) {
+              if (!err) { printer.autoStatus = body; } else {return;}
+              printerRequest(printer, "camera/0/snapshot", function(err, body) {
+                // Do camera last
+                if (!err) { updateSnapshot(printer); }
+              });
+            });
+          });
+        });
+      });
     });
   }
 
+  function updateSnapshot(printer) {
+    request.get("http://" + printer.ip + ":8080/?action=snapshot")
+    .on('error', function(err) {
+      console.log(err);
+    })
+    .pipe(fs.createWriteStream(IMAGE_FOLDER + "/" + printer.imageName))
+  }
+
+  function printerRequest(printer, api, callback) {
+    request.get("http://" + printer.ip + "/api/v1/" + api, {timeout: TIMEOUT_MAX}, function(err, response, body) {        
+      if (err && err.code === 'ETIMEDOUT') {
+        console.log(printer.name + " has timeout");
+        if (inactiveList.indexOf(printer.serial) == -1) {
+          inactiveList.push(printer.serial);
+        }
+        callback(true);
+      } else {
+        inactiveList.splice(inactiveList.indexOf(printer.serial), 1); // remove from list
+        callback(false, body);
+      }
+    })
+  }
+
   // ------------ ON BOOT task --------------//
+  const PRINTER_CHECK_INTERVAL = 60 * 1000; // ms
 
   // Start looping to get Printer status
-  setInterval(updateLoop, LOOP_INTERVAL);
+  setInterval(printerCheck, PRINTER_CHECK_INTERVAL);
+
+  // an initial sweep of printer check before updateLoop first interval goes off
+  printerCheck();
 
   // ------------ Server Setup --------------//
 
