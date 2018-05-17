@@ -12,7 +12,7 @@
   const request = require('request'); // Make HTTP request inside Node.js
   const fs = require('fs'); // file system
   const ip = require('ip'); // to get IP info on Pi
-
+  const mysql = require('mysql');  // for database
 
   //------------------- side files with info -------------------//
 
@@ -20,6 +20,18 @@
   const _printers = require('./keys.js'); // needs to be added manually from drive
   const _colors = require('./colors.js');
   const _sql = require('./sql.js');
+
+  //------------------- Set up mySQL connection -------------------//
+  var sqlConnect = mysql.createConnection({
+    host: _sql.host,
+    user: _sql.username,
+    password: _sql.password
+  });
+
+  sqlConnect.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected to SQL Server!");
+  });
 
   //------------------- Express JS settings -------------------//
 
@@ -284,5 +296,5 @@ function getSerial() {
 
     var addr = server.address();
     console.log('Server up and running. See it at: ');
-    console.log(ip.address() + ":" + addr.port);
+    console.log(ip.address() + ":" + addr.port) + "\n";
   }
