@@ -37,6 +37,7 @@ if (!fs.existsSync(IMAGE_FOLDER)) {
 }
 
 // Template for request options
+/*
 var option = {
   "url": "",
   "headers": {
@@ -49,22 +50,73 @@ var option = {
     },
     "body" : JSON.stringify({})
 };
+*/
 
 //--------------- API calls from front end GUI -------------------//
 
+function errorCheck(err, response, body) {
+  if (err) { console.error(err); }
+}
+
 app.get('/rainbow', function(req, res, next) {
+  _printers.keys.forEach(function(printer, index) {
+    var randomIndex = Math.floor(Math.random() * _colors.rainbow.length);
+    var color = _colors.random[_colors.rainbow[randomIndex]];
+    request.put({
+      "url": "http://" + printer.ip + "/api/v1/printer/led",
+      "headers": {
+        "Content-Type" : "application/json"
+      },
+      "auth" : {
+        "user" : printer.id,
+        "pass" : printer.key,
+        "sendImmediately" : false
+      },
+      "body" : JSON.stringify(color)
+    }, errorCheck);
+  });
   res.send("Good");
 })
 
 app.get('/white', function(req, res, next) {
+  _printers.keys.forEach(function(printer, index) {
+    request.put({
+      "url": "http://" + printer.ip + "/api/v1/printer/led",
+      "headers": {
+        "Content-Type" : "application/json"
+      },
+      "auth" : {
+        "user" : printer.id,
+        "pass" : printer.key,
+        "sendImmediately" : false
+      },
+      "body" : JSON.stringify(_colors.white)
+    }, errorCheck);
+  });
   res.send("Good");
 });
 
 app.get('/bucky', function(req, res, next) {
+  _printers.keys.forEach(function(printer, index) {
+    var color = (index % 2 == 0) ? _colors.white : _colors.red;
+    request.put({
+      "url": "http://" + printer.ip + "/api/v1/printer/led",
+      "headers": {
+        "Content-Type" : "application/json"
+      },
+      "auth" : {
+        "user" : printer.id,
+        "pass" : printer.key,
+        "sendImmediately" : false
+      },
+      "body" : JSON.stringify(color)
+    }, errorCheck);
+  });
   res.send("Good");
 });
 
 app.get('/active', function(req, res, next) {
+  activeMode = true;
   res.send("Good");
 });
 
@@ -72,24 +124,25 @@ app.get('/active', function(req, res, next) {
 
 // Main loop that checks printers every set interval
 const LOOP_INTERVAL = 5000; // ms
+var activeMode = false;
 function updateLoop() {
   console.log("update");
 }
 
 function updateSnapshot(printer, callback) {
-  option.url = "http://" + printer.ip + "/api/v1/camera/0/snapshot";
+  var url = "http://" + printer.ip + "/api/v1/camera/0/snapshot";
 
-  request.get(option.url, function(error, response, body) {
+  request.get(url, function(error, response, body) {
       if (error) { console.log(error); }
 
-      option.url = "http://" + printer.ip + ":8080/?action=snapshot";
-      request.get(option.url)
-    .on('error', function(err) {
+      var urlSnapshot = "http://" + printer.ip + ":8080/?action=snapshot";
+      request.get(urlSnapshot)
+      .on('error', function(err) {
         console.log(err);
-    })
-    .pipe(fs.createWriteStream(IMAGE_FOLDER + "/" + printer.imageName))
+      })
+      .pipe(fs.createWriteStream(IMAGE_FOLDER + "/" + printer.imageName))
     
-    callback();  
+      callback();  
   });
 }
 
