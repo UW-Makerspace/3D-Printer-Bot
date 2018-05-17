@@ -30,10 +30,10 @@ var sqlConnect = mysql.createConnection({
     password: _sql.password
 });
 
-//sqlConnect.connect(function(err) {
-  //  if (err) throw err;
-  //  console.log("Connected to SQL Server!");
-//});
+sqlConnect.connect(function(err) {
+   if (err) throw err;
+   console.log("Connected to SQL Server!");
+});
 
 //------------------- Express JS settings -------------------//
 
@@ -73,7 +73,11 @@ function setColor(printer, color) {
 }
 
 function setColorStatus(printer) {
-    if (printer.autoStatus == "idle") { setColor(printer,_colors.green); }
+    // Manual status takes priority
+    if (printer.manualStatus == "Not Working") { setColor(printer,_colors.red); }
+    else if (printer.manualStatus == "Maintenance") { setColor(printer,_colors.blue); }
+
+    else if (printer.autoStatus == "idle") { setColor(printer,_colors.green); }
     else if (printer.autoStatus == "maintenance") { setColor(printer, _colors.blue); }
     else if (printer.autoStatus == "error") { setColor(printer,_colors.red); }
     else if (printer.autoStatus == "printing") { setColor(printer,_colors.white); }
@@ -139,6 +143,9 @@ app.post('/printerInfo', function(req, res) {
 app.post('/setStatus', function(req, res) {
     var index = _printers.getIndexBySerial(req.body.serial);
     _printers.keys[index].manualStatus = req.body.status;
+    if (activeMode) {
+      setColorStatus(_printers.keys[index]);
+    }
     res.send("Good");
 });
 //-------------- Ultimaker 3 API Functions ----------------------//
@@ -179,7 +186,6 @@ function printerCheck() {
 			printerRequest(printer, "camera/0/snapshot", function(err, body) {
 			    // Do camera last
 			    if (!err) { updateSnapshot(printer); }
-			    //updateSCP(printer.imageName);
 			    updateSQL(printer);
 			});
 		    });
@@ -214,23 +220,37 @@ function printerRequest(printer, api, callback) {
 
 function updateSCP() {
     scpClient.scp(IMAGE_FOLDER + "/", _scp.username + ":" + _scp.password + "@" + _scp.host, function(err) {
-	if (err) { console.error(err); }
+      if (err) { console.error(err); }
     });
 }
 
 function updateSQL(printer) {
+  if(sqlConnect.state === 'disconnected'){
+    sqlConnect.connect(function(err) {
+      if (err) { console.error(err) };
+      console.log("Connected to SQL Server... again!");
+    });
 
+  } else {
+    sqlConnect.query(
+      "UPDATE ? SET timetotal = ?, manualStatus = ?, autoStatus = ?, name = ?, timeelapsed = ? WHERE serial = ?",
+      [_sql.database, printer.timeTotal, printer.manualStatus, printer.autoStatus, printer.name, printer.timeElapsed, printer.serial], function(err, result) {
+        if (err) { console.error(err); }
+    });
+  }
 }
 
 // ------------ ON BOOT task --------------//
 const PRINTER_CHECK_INTERVAL = 60 * 1000; // ms
+const PRINTER_IMAGE_INTERVAL = 90 * 1000; // ms
 
 // Start looping to get Printer status
 setInterval(printerCheck, PRINTER_CHECK_INTERVAL);
+setInterval(updateSCP, PRINTER_IMAGE_INTERVAL);
 
 // an initial sweep of printer check before updateLoop first interval goes off
-//printerCheck();
-updateSCP();
+printerCheck();
+
 // ------------ Debugging functions ---------- //
 
 // Prints all serial from printers
