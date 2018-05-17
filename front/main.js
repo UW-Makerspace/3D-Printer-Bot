@@ -43,35 +43,32 @@ function setActive(id) {
 	document.getElementById("button" + id).style.background = activeColor;
 }
 
-var nameList = [];
 function updatePrinters() {
 	changeMenu(1);
 	printerList = document.getElementById("printerList");
-	nameList = [];
 	printerList.innerHTML = ""; // clear from previous query 
 	$.get("/printerList", function( data ) {
 		for (var i = 0; i < data.list.length; i++) {
-			nameList.push(data.list[i]); // this is because two word names string parsing got janky
-			printerList.innerHTML += "<div class='printerItem' onclick=printerSettings(\"" + i + "\")>" + data.list[i] + "</div>";
+			printerList.innerHTML += "<div class='printerItem' onclick=printerSettings(\"" + data.list[i].serial + "\")>" + data.list[i].name + "</div>";
 		}
 	});
 }
 
-var currentName;
-function printerSettings(nameIndex) {
-	$.post("/printerInfo", {"name" : nameList[nameIndex]} ,function( data ) {
+var currentPrinter;
+function printerSettings(serial) {
+	$.post("/printerInfo", {"serial" : serial} ,function( data ) {
 		if (data.active) {
 			changeMenu(2);
-			document.getElementById("printerOptionName").innerHTML = nameList[nameIndex];
-			currentName = nameList[nameIndex];
+			document.getElementById("printerOptionName").innerHTML = data.name;
+			currentPrinter = serial;
 		} else {
-			alertBox( nameList[nameIndex] + " is inactive");
+			alertBox( data.name + " is inactive");
 		}
 	});	
 }
 
 function setWorkingStatus(status) {
-	$.post("/setStatus", {"name" : currentName, "status" : status}, function( data ) {
+	$.post("/setStatus", {"serial" : currentPrinter, "status" : status}, function( data ) {
 		changeMenu(1);
 		alertBox(status + " status Set");
 	});	

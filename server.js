@@ -126,22 +126,23 @@
 
   app.post('/printerInfo', function(req, res) {
     // Assuming req.body.name is always valid
-    var serial = _printers.getByName(req.body.name).serial;
-    if (inactiveList.indexOf(serial) >= 0) {
+    var printer = _printers.getBySerial(req.body.serial);
+    if (inactiveList.indexOf(printer.serial) >= 0) {
       // is inactive
       return res.json({
-        "active" : false
+        "active" : false,
+        "name" : printer.name
       });
     } else {
       return res.json({
         "active" : true,
-        "status" : _printers.getByName(req.body.name).manualStatus
+        "name" : printer.name
       });
     }
   });
 
   app.post('/setStatus', function(req, res) {
-    var index = _printers.getIndex(req.body.name);
+    var index = _printers.getIndexBySerial(req.body.serial);
     _printers.keys[index].manualStatus = req.body.status;
     res.send("Good");
   });
