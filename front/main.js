@@ -43,25 +43,45 @@ function setActive(id) {
 	document.getElementById("button" + id).style.background = activeColor;
 }
 
+var nameList = [];
 function updatePrinters() {
 	changeMenu(1);
 	printerList = document.getElementById("printerList");
+	nameList = [];
 	printerList.innerHTML = ""; // clear from previous query 
 	$.get("/printerList", function( data ) {
 		for (var i = 0; i < data.list.length; i++) {
-			printerList.innerHTML += "<div class='printerItem' onclick=printerSettings('"+data.list[i]+"')>" + data.list[i] + "</div>";
+			nameList.push(data.list[i]); // this is because two word names string parsing got janky
+			printerList.innerHTML += "<div class='printerItem' onclick=printerSettings(\"" + i + "\")>" + data.list[i] + "</div>";
 		}
 	});
 }
 
-function printerSettings(name) {
-	changeMenu(2);
+var currentName;
+function printerSettings(nameIndex) {
+	$.post("/printerInfo", {"name" : nameList[nameIndex]} ,function( data ) {
+		if (data.active) {
+			changeMenu(2);
+			document.getElementById("printerOptionName").innerHTML = nameList[nameIndex];
+			currentName = nameList[nameIndex];
+		} else {
+			alertBox( nameList[nameIndex] + " is inactive");
+		}
+	});	
+}
+
+function setWorkingStatus(working) {
+	var status = working ? "working" : "not working";
+	$.post("/setStatus", {"name" : currentName, "status" : status}, function( data ) {
+		changeMenu(1);
+		alertBox(status + " status Set");
+	});	
 }
 
 function changeMenu(index) {
 	for (var i = 0; i < MENUS.length; i++) {
-		document.getElementById(MENUS[i]).style.visibility = "hidden";
+		document.getElementById(MENUS[i]).style.display = "none";
 	}
 
-	document.getElementById(MENUS[index]).style.visibility = "visible";
+	document.getElementById(MENUS[index]).style.display = "block";
 }

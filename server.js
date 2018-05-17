@@ -125,7 +125,7 @@
   });
 
   app.post('/printerInfo', function(req, res) {
-    if (inactiveList.indexOf(req.body.name) == -1) {
+    if (inactiveList.indexOf(req.body.name) >= 0) {
       // is inactive
       return res.json({
         "active" : false
@@ -138,11 +138,16 @@
     }
   });
 
+  app.post('/setStatus', function(req, res) {
+    var index = _printers.getIndex(req.body.name);
+    _printers.keys[index].manualStatus = req.body.status;
+    res.send("Good");
+  });
   //-------------- Ultimaker 3 API Functions ----------------------//
 
   const LOOP_INTERVAL = 5000; // ms
   var activeMode = false;
-  var inactiveList = [];
+  var inactiveList = ["Yellow Belly Sap Sucker"];
 
   // Main loop that checks printers every set interval
   function updateLoop() {

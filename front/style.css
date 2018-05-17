@@ -1,6 +1,7 @@
 .lightButton {
 	width: 48vw;
 	height: 36vh;
+	border-radius: 15px;
 	background: white;
 	color: red;
 	font-size: 200%;
@@ -17,23 +18,25 @@
 }
 
 .alertBox {
-	width: 40vw;
-	height: 8vh;
-	background-color: lightcoral;
-	border: 4px red solid;
-	color: white;
-	z-index: 999;
-	text-align: center;
-	font-size: 5vh;
-	margin-left: 27.5vw;
-	visibility: hidden;
-	margin-top: 9vh;
-	position: fixed;
-	top: 0;
+	width: 60vw;
+    height: 8vh;
+    background-color: #2e9a0b;
+    border: 4px #00ff37 solid;
+    color: white;
+    z-index: 999;
+    line-height: 8vh;
+    text-align: center;
+    font-size: 5vh;
+    margin-left: 18.5vw;
+    visibility: hidden;
+    margin-top: 9vh;
+    position: fixed;
+    top: 0;
 }
 
 .printerItem {
-	width: 46vw;	
+	width: 46vw;
+	border-radius: 15px;
     float: left;
 	margin-left: 1vw;
 	margin-bottom: 1vw;
@@ -48,15 +51,15 @@
 }
 
 #mainScreen {
-	visibility: visible;
+	display: block;
 }
 
 #printerSelect {
-	visibility: hidden;	
+	display: none;	
     overflow-x: hidden;
 }
 
-#printerSelectBack {
+.printerSelectBack {
 	width: 93vw;	
 	margin-left: 1vw;
 	margin-bottom: 1vw;
@@ -70,6 +73,27 @@
     border: 1px black solid;
 }
 
+#printerOptionWorkingStatus{
+	font-size: 5vh;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 11vh;
+}
+
+#printerOptionName {
+	font-size: 5vh;
+    text-align: center;
+}
+
+.workingButton{
+    border-radius: 20px;
+    margin-bottom: 2vh;
+    height: 15vh;
+    vertical-align: middle;
+    line-height: 15vh;
+    color: white;
+}
+
 #printerList: {	
     overflow-x: hidden;    
 }
@@ -80,6 +104,6 @@
     clear: both;
 }
 
-#PrinterOptions {
-	visibility: hidden;
+#printerOptions {
+	display: none;
 }

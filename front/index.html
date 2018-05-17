@@ -21,11 +21,20 @@
 </div>
 
 <div id="printerSelect">
-	<div id="printerSelectBack" onclick="changeMenu(0)">Back</div>
+	<div class="printerSelectBack" onclick="changeMenu(0)">Back</div>
 	<div id="printerList"></div>
 </div>
 
-<div id="printerOptions">
+<div id="printerOptions">	
+	<div class="printerSelectBack" onclick="changeMenu(1)">Back</div>
+	<hr>
+	<div id="printerOptionName"></div>
+	<hr>
+	<div id="printerOptionWorkingStatus">
+		Set printer as:
+		<div class="workingButton" style="background: green;" onclick="setWorkingStatus(true)">WORKING</div>
+		<div class="workingButton" style="background: red;" onclick="setWorkingStatus(false)">NOT WORKING</div>
+	</div>
 </div>
 
 </body>
