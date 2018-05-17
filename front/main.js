@@ -49,6 +49,7 @@ function updatePrinters() {
 	printerList.innerHTML = ""; // clear from previous query 
 	$.get("/printerList", function( data ) {
 		for (var i = 0; i < data.list.length; i++) {
+			if (data.list[i].name == undefined) {continue;}
 			printerList.innerHTML += "<div class='printerItem' onclick=printerSettings(\"" + data.list[i].serial + "\")>" + data.list[i].name + "</div>";
 		}
 	});
@@ -79,6 +80,5 @@ function changeMenu(index) {
 	for (var i = 0; i < MENUS.length; i++) {
 		document.getElementById(MENUS[i]).style.display = "none";
 	}
-
 	document.getElementById(MENUS[index]).style.display = "block";
 }

@@ -19,6 +19,7 @@
   // underscore represents loaded from other files
   const _printers = require('./keys.js'); // needs to be added manually from drive
   const _colors = require('./colors.js');
+  const _sql = require('./sql.js');
 
   //------------------- Express JS settings -------------------//
 
@@ -36,33 +37,14 @@
       fs.mkdirSync(IMAGE_FOLDER);
   }
 
-  // Template for request options
-  /*
-  var option = {
-    "url": "",
-    "headers": {
-      "Content-Type" : "application/json"
-    },
-    "auth" : {
-      "user" : _printers.keys[0].id,
-      "pass" : _printers.keys[0].key,
-      "sendImmediately" : false
-      },
-      "body" : JSON.stringify({})
-  };
-  */
-
   //--------------- API calls from front end GUI -------------------//
 
   function errorCheck(err, response, body) {
     if (err) { console.error(err); }
   }
 
-  app.get('/rainbow', function(req, res, next) {
-    _printers.keys.forEach(function(printer, index) {
-      var randomIndex = Math.floor(Math.random() * _colors.rainbow.length);
-      var color = _colors[_colors.rainbow[randomIndex]];
-      request.put({
+  function setColor(printer, color) {
+    request.put({
         "url": "http://" + printer.ip + "/api/v1/printer/led",
         "headers": {
           "Content-Type" : "application/json"
@@ -74,49 +56,49 @@
         },
         "body" : JSON.stringify(color)
       }, errorCheck);
+  }
+
+  function setColorStatus(printer) {
+    var color;
+    if (printer.autoStatus == "idle") { color == _colors.green; }
+    else if (printer.autoStatus == "maintenance") { color == _colors.blue; }
+    else if (printer.autoStatus == "error") { color == _colors.red; }
+    else { color == _colors.white; } // active
+    setColor(printer, color);
+  }
+
+  app.get('/rainbow', function(req, res, next) {
+    activeMode = false;
+    _printers.keys.forEach(function(printer, index) {
+      var randomIndex = Math.floor(Math.random() * _colors.rainbow.length);
+      var color = _colors[_colors.rainbow[randomIndex]];
+      setColor(printer, color);
     });
     res.send("Good");
   })
 
-  app.get('/white', function(req, res) {
+  app.get('/white', function(req, res) {    
+    activeMode = false;
     _printers.keys.forEach(function(printer, index) {
-      request.put({
-        "url": "http://" + printer.ip + "/api/v1/printer/led",
-        "headers": {
-          "Content-Type" : "application/json"
-        },
-        "auth" : {
-          "user" : printer.id,
-          "pass" : printer.key,
-          "sendImmediately" : false
-        },
-        "body" : JSON.stringify(_colors.white)
-      }, errorCheck);
+      setColor(printer, _colors.white);
     });
     res.send("Good");
   });
 
   app.get('/bucky', function(req, res) {
+    activeMode = false;
     _printers.keys.forEach(function(printer, index) {
-      var color = (index % 2 == 0) ? _colors.white : _colors.red;
-      request.put({
-        "url": "http://" + printer.ip + "/api/v1/printer/led",
-        "headers": {
-          "Content-Type" : "application/json"
-        },
-        "auth" : {
-          "user" : printer.id,
-          "pass" : printer.key,
-          "sendImmediately" : false
-        },
-        "body" : JSON.stringify(color)
-      }, errorCheck);
+      var color = (Math.floor(Math.random()) % 2 == 0) ? _colors.white : _colors.red;
+      setColor(printer, color);
     });
     res.send("Good");
   });
 
   app.get('/active', function(req, res) {
     activeMode = true;
+    _printers.keys.forEach(function(printer, index) {
+      setColorStatus(printer);
+    });
     return res.send("Good");
   });
 
@@ -157,7 +139,7 @@
   function printerCheck() {
     _printers.keys.forEach(function(printer, index) {
       printerRequest(printer, "system/name", function(err, body) {
-        if (!err) { printer.name = body; } else {return;}
+        if (!err) { printer.name = body.replace(/"/g,""); } else {return;}
         printerRequest(printer, "print_job/time_elapsed", function(err, body) {
             if (!err) {
 		if (isNaN(body)) {  
@@ -175,10 +157,17 @@
 		}
 	      } else {return;}
             printerRequest(printer, "printer/status", function(err, body) {
-              if (!err) { printer.autoStatus = body; } else {return;}
+              if (!err) { 
+                printer.autoStatus = body;
+                if (activeMode) {
+                   setColorStatus(printer);
+                }
+              }
               printerRequest(printer, "camera/0/snapshot", function(err, body) {
                 // Do camera last
                 if (!err) { updateSnapshot(printer); }
+
+                updateSQL(printer);
               });
             });
           });
@@ -208,6 +197,10 @@
         callback(false, body);
       }
     })
+  }
+
+  function updateSQL(printer) {
+
   }
 
   // ------------ ON BOOT task --------------//
